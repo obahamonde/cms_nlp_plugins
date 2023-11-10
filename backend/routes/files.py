@@ -3,12 +3,13 @@ from typing import Literal
 from fastapi import APIRouter, File, UploadFile
 from fastapi.responses import StreamingResponse
 from openai import AsyncOpenAI
+from openai.types.file_object import FileObject
 
 app = APIRouter()
 ai = AsyncOpenAI()
 
 
-@app.post("/api/file")
+@app.post("/api/file", response_model=FileObject)
 async def upload_file(
     file: UploadFile = File(...),
     purpose: Literal["assistants", "fine-tune"] = "assistants",
@@ -59,7 +60,7 @@ async def upload_file(
     return response
 
 
-@app.get("/api/file")
+@app.get("/api/file", response_class=StreamingResponse)
 async def get_files(purpose: Literal["assistants", "fine-tune"] = "assistants"):
     """
         Returns a file.
@@ -80,12 +81,12 @@ async def get_files(purpose: Literal["assistants", "fine-tune"] = "assistants"):
 
     async def generator():
         async for file in response:
-            yield f"data: {file.json()}"
+            yield f"data: {file.json()}\n\n"
 
     return StreamingResponse(generator(), media_type="text/event-stream")
 
 
-@app.delete("/api/file/{file_id}")
+@app.delete("/api/file/{file_id}", response_model=None)
 async def delete_file(file_id: str):
     """
     Deletes a file.
@@ -93,7 +94,7 @@ async def delete_file(file_id: str):
     await ai.files.delete(file_id=file_id)
 
 
-@app.get("/api/file/{file_id}")
+@app.get("/api/file/{file_id}", response_model=FileObject)
 async def retrieve_files(file_id: str):
     """
         Returns a file.

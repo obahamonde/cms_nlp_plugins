@@ -5,22 +5,30 @@ import asyncio
 import functools
 import logging
 from time import perf_counter
-from typing import (Awaitable, Callable, Generator, Sequence, TypeVar, Union,
-                    cast)
+from typing import Awaitable, Callable, Generator, Sequence, TypeVar, Union, cast
 
 from fastapi import HTTPException, status
-from openai import (APIConnectionError, APIError, APIResponseValidationError,
-                    APIStatusError, APITimeoutError, AuthenticationError,
-                    BadRequestError, ConflictError, NotFoundError, OpenAIError,
-                    PermissionDeniedError, RateLimitError,
-                    UnprocessableEntityError)
+from openai import (
+    APIConnectionError,
+    APIError,
+    APIResponseValidationError,
+    APIStatusError,
+    APITimeoutError,
+    AuthenticationError,
+    BadRequestError,
+    ConflictError,
+    NotFoundError,
+    OpenAIError,
+    PermissionDeniedError,
+    RateLimitError,
+    UnprocessableEntityError,
+)
 from rich.console import Console
 from rich.logging import RichHandler
 from rich.pretty import install
 from rich.traceback import install as ins
 from tenacity import retry as retry_
-from tenacity import (retry_if_exception_type, stop_after_attempt,
-                      wait_exponential)
+from tenacity import retry_if_exception_type, stop_after_attempt, wait_exponential
 from typing_extensions import ParamSpec
 
 ERRORS = (
@@ -58,12 +66,7 @@ OPEN_AI_HTTP_EXCEPTIONS = (
     UnprocessableEntityError,
 )
 
-OPEN_AI_ERRORS = (
-    APIConnectionError,
-    APIError,
-    APITimeoutError,
-    OpenAIError
-)
+OPEN_AI_ERRORS = (APIConnectionError, APIError, APITimeoutError, OpenAIError)
 
 RETRY_EXCEPTIONS = (
     asyncio.TimeoutError,
@@ -262,6 +265,6 @@ def retry(
         async def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
             return await func(*args, **kwargs)
 
-        return wrapper # type: ignore
+        return wrapper  # type: ignore
 
     return decorator

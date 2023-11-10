@@ -1,9 +1,8 @@
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Literal, Optional
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse, StreamingResponse
-from fastapi.staticfiles import StaticFiles
 from openai import AsyncOpenAI
 
 from backend import (
@@ -18,7 +17,7 @@ from backend import (
 )
 from backend.routes import agents_app, files_app, threads_app
 
-app = FastAPI()
+app = FastAPI(title="OpenAI Plugin Backend Platform")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -30,7 +29,7 @@ ai = AsyncOpenAI()
 ##### TTS #############################################
 
 
-@app.get("/api/audio/{text}")
+@app.get("/api/audio/{text}", response_class=StreamingResponse)
 async def tts_endpoint(
     text: str,
     context: Optional[str] = None,
@@ -66,7 +65,7 @@ async def tts_endpoint(
 ####### AUTOCOMPLETE ENDPOINTS #######
 
 
-@app.get("/api/autocomplete/blog")
+@app.get("/api/autocomplete/blog", response_class=PlainTextResponse)
 async def autocomplete_blog_endpoint(
     text: str,
     max_tokens: int = 128,
@@ -83,7 +82,7 @@ async def autocomplete_blog_endpoint(
     return PlainTextResponse(response)
 
 
-@app.get("/api/autocomplete/code")
+@app.get("/api/autocomplete/code", response_class=PlainTextResponse)
 async def autocomplete_code_endpoint(
     text: str,
     max_tokens: int = 128,
@@ -103,7 +102,7 @@ async def autocomplete_code_endpoint(
 ######### CHAT #########
 
 
-@app.get("/api/chat")
+@app.get("/api/chat", response_class=StreamingResponse)
 async def chat_endpoint(text: str):
     """
     Returns a response to the input text.
