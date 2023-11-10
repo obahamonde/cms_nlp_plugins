@@ -6,9 +6,16 @@ from fastapi.responses import PlainTextResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from openai import AsyncOpenAI
 
-from backend import (use_chat, use_chat_stream, use_function, use_image,
-                     use_instruction, use_instruction_stream, use_tts,
-                     use_vision)
+from backend import (
+    use_chat,
+    use_chat_stream,
+    use_function,
+    use_image,
+    use_instruction,
+    use_instruction_stream,
+    use_tts,
+    use_vision,
+)
 from backend.routes import agents_app, files_app, threads_app
 
 app = FastAPI()
@@ -107,7 +114,7 @@ async def chat_endpoint(text: str):
         context=None,
         temperature=0.7,
         max_tokens=1024,
-        model="gpt-4-1106-preview",
+        model="gpt-3.5-turbo-1106",
     )
 
     async def generator():
@@ -118,6 +125,6 @@ async def chat_endpoint(text: str):
     return StreamingResponse(generator(), media_type="text/event-stream")
 
 
-app.include_router(threads_app,tags=["threads,messages"])
-app.include_router(files_app,tags=["files"])
-app.include_router(agents_app,tags=["assistants"])
+app.include_router(threads_app, tags=["threads,messages"])
+app.include_router(files_app, tags=["files"])
+app.include_router(agents_app, tags=["assistants"])

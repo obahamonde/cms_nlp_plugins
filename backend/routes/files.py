@@ -1,6 +1,7 @@
 from typing import Literal
 
 from fastapi import APIRouter, File, UploadFile
+from fastapi.responses import StreamingResponse
 from openai import AsyncOpenAI
 
 app = APIRouter()
@@ -76,7 +77,12 @@ async def get_files(purpose: Literal["assistants", "fine-tune"] = "assistants"):
     }
     """
     response = await ai.files.list(purpose=purpose)
-    return response
+
+    async def generator():
+        async for file in response:
+            yield f"data: {file.json()}"
+
+    return StreamingResponse(generator(), media_type="text/event-stream")
 
 
 @app.delete("/api/file/{file_id}")
