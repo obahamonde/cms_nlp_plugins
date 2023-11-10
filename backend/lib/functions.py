@@ -13,7 +13,7 @@ from openai.types.chat.chat_completion_user_message_param import (
 from pydantic import BaseModel, Field  # pylint: disable=no-name-in-module
 from typing_extensions import ParamSpec
 
-from .utils import handle, setup_logging  # pylint: disable=E0401
+from ..utils import handle, setup_logging  # pylint: disable=E0401
 
 T = TypeVar("T")
 P = ParamSpec("P")
@@ -99,9 +99,11 @@ class OpenAIFunction(BaseModel, ABC):
         }
 
     @handle
-    async def __call__(self,*,comments:str, **kwargs: Any) -> FunctionCall:
+    async def __call__(self, *, comments: str, **kwargs: Any) -> FunctionCall:
         response = await self.run(**kwargs)
-        return FunctionCall(name=self.__class__.__name__, data=response,comments=comments)
+        return FunctionCall(
+            name=self.__class__.__name__, data=response, comments=comments
+        )
 
     async def run(self, **kwargs: Any) -> Any:
         """Main function to be implemented by subclasses"""
@@ -131,7 +133,11 @@ async def use_function(
         max_tokens=max_tokens,
     )
     if response.choices[0].message.function_call is None:
-        return FunctionCall(name="chat", data=response.choices[0].message.content,comments="No Function was called, defaulting to chat")
+        return FunctionCall(
+            name="chat",
+            data=response.choices[0].message.content,
+            comments="No Function was called, defaulting to chat",
+        )
     for func in functions:
         if func.__name__ == response.choices[0].message.function_call.name:
             instance = func.parse_raw(
@@ -142,7 +148,7 @@ async def use_function(
                 comments = "No comments were provided"
             else:
                 comments = data
-            return await instance(comments=comments,**kwargs)
+            return await instance(comments=comments, **kwargs)
     raise ValueError("Function not found")
 
 
@@ -317,6 +323,7 @@ async def use_tts(
     async for chunk in response:
         yield chunk
 
+
 '''
 class UseChat(OpenAIFunction):
     """
@@ -345,6 +352,7 @@ class UseChat(OpenAIFunction):
             max_tokens=self.max_tokens,
         )
 '''
+
 
 class UseInstruction(OpenAIFunction):
     """

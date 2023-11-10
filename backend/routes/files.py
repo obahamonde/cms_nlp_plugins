@@ -107,13 +107,3 @@ async def retrieve_files(file_id: str):
     """
     response = await ai.files.retrieve(file_id=file_id)
     return response
-
-
-#@app.get("/api/file/{file_id}/content")
-async def get_file(file_id: str):
-    """
-    Returns a file.
-    Only works for fine tuning jsonl files.
-    """
-    response = await ai.files.retrieve_content(file_id=file_id)
-    return response

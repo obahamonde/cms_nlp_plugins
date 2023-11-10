@@ -1,11 +1,15 @@
-from fastapi import APIRouter
+from typing import Literal, Optional
+
+from fastapi import APIRouter, Depends
 from openai import AsyncOpenAI
+from openai.types.beta import Thread
 
 app = APIRouter()
 ai = AsyncOpenAI()
 
 
-async def create_thread(*, ai: AsyncOpenAI):
+@app.get("/api/thread")
+async def create_thread():
     """
     Create a new thread.
     """
@@ -14,7 +18,8 @@ async def create_thread(*, ai: AsyncOpenAI):
     return response
 
 
-async def delete_thread(*, ai: AsyncOpenAI, thread_id: str):
+@app.delete("/api/thread/{thread_id}")
+async def delete_thread(*, thread_id: str):
     """
     Delete a thread.
     """
@@ -23,18 +28,34 @@ async def delete_thread(*, ai: AsyncOpenAI, thread_id: str):
     return response
 
 
-@app.get("/api/thread")
-async def thread_endpoint():
+@app.post("/api/messages/{thread_id}")
+async def create_message(
+    *,
+    content: str,
+    thread_id: str,
+    role: Literal["user"] = "user",
+    file_ids: list[str] = [],
+    metadata: Optional[dict[str, str]] = {}
+):
     """
-    Returns a new thread.
+    Create a message.
     """
-    response = await create_thread(ai=ai)
+    messages = ai.beta.threads.messages
+    response = await messages.create(
+        thread_id=thread_id,
+        content=content,
+        role=role,
+        file_ids=file_ids,
+        metadata=metadata,
+    )
     return response
 
 
-@app.delete("/api/thread/{thread_id}")
-async def delete_thread_endpoint(thread_id: str):
+@app.get("/api/messages/{thread_id}")
+async def retrieve_messages(*, thread_id: str):
     """
-    Deletes a thread.
+    Retrieve messages.
     """
-    return await ai.beta.threads.delete(thread_id=thread_id)
+    messages = ai.beta.threads.messages
+    response = await messages.list(thread_id=thread_id)
+    return response
