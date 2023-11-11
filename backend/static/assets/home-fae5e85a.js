@@ -1,0 +1,1 @@
+import{_ as o,r as c,o as t,c as n,a as r}from"./index-4a6feb7f.js";const s={},a={class:"h-screen w-full col center"};function _(l,m){const e=c("RouterView");return t(),n("main",a,[r(e)])}const i=o(s,[["render",_]]);export{i as default};
