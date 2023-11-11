@@ -1,0 +1,26 @@
+version: "3.7"
+
+services:
+  
+  application:
+
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: application
+    container_name: application
+    ports:
+      - "8080:8080"
+    restart: always
+    env_file: .env
+    volumes:
+      - ./:/app
+      
+    networks:
+      - app-network
+
+
+
+networks:
+  app-network:
+    driver: bridge
