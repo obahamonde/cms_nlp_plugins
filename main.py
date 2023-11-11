@@ -1,10 +1,5 @@
 from typing import Literal, Optional
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import PlainTextResponse, StreamingResponse
-from openai import AsyncOpenAI
-
 from backend import (
     use_chat,
     use_chat_stream,
@@ -16,7 +11,13 @@ from backend import (
     use_vision,
 )
 from backend.routes import agents_app, files_app, threads_app
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import PlainTextResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
+from openai import AsyncOpenAI
 
+static = StaticFiles(directory="static", html=True)
 app = FastAPI(title="OpenAI Plugin Backend Platform")
 app.add_middleware(
     CORSMiddleware,
@@ -127,3 +128,4 @@ async def chat_endpoint(text: str):
 app.include_router(threads_app, tags=["threads,messages"])
 app.include_router(files_app, tags=["files"])
 app.include_router(agents_app, tags=["assistants"])
+app.mount("/", static, name="static")
